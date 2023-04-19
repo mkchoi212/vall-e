@@ -34,7 +34,10 @@ def main():
     resp_list = ar(text_list=[phns], proms_list=[proms])
     resps_list = [r.unsqueeze(-1) for r in resp_list]
 
-    resps_list = nar(text_list=[phns], proms_list=[proms], resps_list=resps_list)
+    resps_list = nar(
+        text_list=[phns],
+        proms_list=[proms],
+        resps_list=resps_list)
     qnt.decode_to_file(resps=resps_list[0], path=args.out_path)
     print(args.out_path, "saved.")
 

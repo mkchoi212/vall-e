@@ -111,7 +111,9 @@ class Attention(nn.Module):
         h = self.n_heads
 
         q, k, v = self.to_qkv(x).chunk(3, dim=-1)
-        q, k, v = map(lambda t: rearrange(t, "b t (h d) -> b t h d", h=h), (q, k, v))
+        q, k, v = map(
+            lambda t: rearrange(
+                t, "b t (h d) -> b t h d", h=h), (q, k, v))
 
         e = einsum("b i h d, b j h d -> b i j h", q, k)
         e = e * self.scale
@@ -191,7 +193,14 @@ class PrenormResidual(nn.Module):
 
 
 class Block(nn.Sequential):
-    def __init__(self, d_model, n_heads, p_dropout, casual, norm_type, n_levels):
+    def __init__(
+            self,
+            d_model,
+            n_heads,
+            p_dropout,
+            casual,
+            norm_type,
+            n_levels):
         super().__init__()
         self.attn = PrenormResidual(
             Attention(d_model, n_heads, casual),
@@ -246,7 +255,11 @@ class MultiEmbedding(nn.Module):
         super().__init__()
         self.max_n_levels = max_n_levels
         self.n_tokens = n_tokens
-        self.weight = nn.Parameter(torch.randn(max_n_levels, n_tokens, token_dim))
+        self.weight = nn.Parameter(
+            torch.randn(
+                max_n_levels,
+                n_tokens,
+                token_dim))
 
     def forward(self, x_list: list[Tensor]) -> list[Tensor]:
         if len(x_list) == 0:
@@ -327,7 +340,8 @@ class Base(nn.Module):
 
         # Here I simply use all prom levels
         self.proms_emb = MultiEmbedding(self.n_prom_levels, n_tokens, d_model)
-        self.resps_emb = MultiEmbedding(self.n_resp_levels, n_resp_tokens, d_model)
+        self.resps_emb = MultiEmbedding(
+            self.n_resp_levels, n_resp_tokens, d_model)
 
         self.sin_emb = SinusodialEmbedding(d_model)
 
@@ -446,9 +460,8 @@ class Base(nn.Module):
             ignore_sep = torch.tensor(self.ignore_index, device=device)
 
             # Ignore prom in the target
-            prom_list = [
-                torch.full_like(t[..., 0], self.ignore_index) for t in proms_list
-            ]
+            prom_list = [torch.full_like(
+                t[..., 0], self.ignore_index) for t in proms_list]
 
             text_prom_list = self._samplewise_merge_tensors(
                 text_list, prom_list, sep=ignore_sep
@@ -485,8 +498,9 @@ class Base(nn.Module):
         if return_all_resp:
             logits = [hi[-li:] for hi, li in zip(h_list, map(len, resps_list))]
             ret = [
-                Categorical(logits=hi / sampling_temperature).sample() for hi in logits
-            ]
+                Categorical(
+                    logits=hi /
+                    sampling_temperature).sample() for hi in logits]
         else:
             logits = torch.stack([hi[-1] for hi in h_list])
             ret = Categorical(logits=logits / sampling_temperature).sample()

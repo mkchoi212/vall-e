@@ -88,18 +88,20 @@ class VALLEDatset(Dataset):
         self.max_phones = max_phones
 
         self.paths = [
-            path for path in paths if _validate(path, self.min_phones, self.max_phones)
-        ]
+            path for path in paths if _validate(
+                path,
+                self.min_phones,
+                self.max_phones)]
 
         self.spkr_symmap = spkr_symmap or self._get_spkr_symmap()
         self.phone_symmap = phone_symmap or self._get_phone_symmap()
         self.training = training
 
-        self.paths_by_spkr_name = self._get_paths_by_spkr_name(extra_paths_by_spkr_name)
+        self.paths_by_spkr_name = self._get_paths_by_spkr_name(
+            extra_paths_by_spkr_name)
 
-        self.paths = [
-            p for p in self.paths if len(self.paths_by_spkr_name[cfg.get_spkr(p)]) > 1
-        ]
+        self.paths = [p for p in self.paths if len(
+            self.paths_by_spkr_name[cfg.get_spkr(p)]) > 1]
 
         if len(self.paths) == 0 and training:
             raise ValueError("No valid path is found for training.")
@@ -109,7 +111,8 @@ class VALLEDatset(Dataset):
         else:
             self.sampler = None
 
-    def _get_paths_by_spkr_name(self, extra_paths_by_spkr_name: dict[str, list]):
+    def _get_paths_by_spkr_name(
+            self, extra_paths_by_spkr_name: dict[str, list]):
         ret = defaultdict(list)
         for path in self.paths:
             if _get_quant_path(path).exists():
@@ -123,7 +126,8 @@ class VALLEDatset(Dataset):
         return sorted(set().union(*[_get_phones(path) for path in self.paths]))
 
     def _get_phone_symmap(self):
-        # Note that we use phone symmap starting from 1 so that we can safely pad 0.
+        # Note that we use phone symmap starting from 1 so that we can safely
+        # pad 0.
         return {s: i for i, s in enumerate(self.phones, 1)}
 
     @cached_property
@@ -222,7 +226,8 @@ def _load_train_val_paths():
         paths.extend(tqdm(data_dir.rglob("*.qnt.pt")))
 
     if len(paths) == 0:
-        raise RuntimeError(f"Failed to find any .qnt.pt file in {cfg.data_dirs}.")
+        raise RuntimeError(
+            f"Failed to find any .qnt.pt file in {cfg.data_dirs}.")
 
     pairs = sorted([(cfg.get_spkr(p), p) for p in paths])
     del paths

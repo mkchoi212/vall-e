@@ -44,7 +44,8 @@ class NAR(Base):
         n_levels_set = {r.shape[-1] for r in resps_list}
 
         if len(n_levels_set) > 1:
-            raise ValueError(f"Please give only one level, got {n_levels_set}.")
+            raise ValueError(
+                f"Please give only one level, got {n_levels_set}.")
 
         n_levels = next(iter(n_levels_set))
 
@@ -53,10 +54,13 @@ class NAR(Base):
         if n_levels == self.n_resp_levels + 1:
             assert resps_list is not None
 
-            quant_levels = torch.randint(0, self.n_resp_levels, (len(resps_list),))
+            quant_levels = torch.randint(
+                0, self.n_resp_levels, (len(resps_list),))
 
-            prev_list = [o[..., : l + 1] for o, l in zip(resps_list, quant_levels)]
-            targ_list = [o[..., l + 1] for o, l in zip(resps_list, quant_levels)]
+            prev_list = [o[..., : l + 1]
+                         for o, l in zip(resps_list, quant_levels)]
+            targ_list = [o[..., l + 1]
+                         for o, l in zip(resps_list, quant_levels)]
 
             quant_levels = quant_levels.to(device=device)
 
@@ -81,7 +85,8 @@ class NAR(Base):
                 if level >= self.n_resp_levels:
                     break
 
-                quant_levels = torch.full((len(text_list),), level, device=device)
+                quant_levels = torch.full(
+                    (len(text_list),), level, device=device)
 
                 resp_list = super().forward(
                     text_list,

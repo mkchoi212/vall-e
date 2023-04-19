@@ -93,7 +93,8 @@ def main():
             for k, v in batch_stats.items():
                 stats[k].append(v)
 
-            for path, ref, hyp in zip(batch["path"], batch["resps"], resps_list):
+            for path, ref, hyp in zip(
+                    batch["path"], batch["resps"], resps_list):
                 relpath = path.relative_to(cfg.data_root)
                 hyp_path = (log_dir / "hyp" / relpath).with_suffix(".wav")
                 ref_path = (log_dir / "ref" / relpath).with_suffix(".wav")
